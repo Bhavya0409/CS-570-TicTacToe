@@ -13,12 +13,15 @@ function Grid(boardSize) {
 
 Grid.prototype.showTable = function() {
     let table = ' ';
+    // console.log('selected', this.selectedCells);
     for (let row = 0; row <= this.boardSize; row++) {
         if (row === 0) {
+            // Header Row
             for (let column = 1; column <= this.boardSize; column++) {
                 table+=`   ${column}`;
             }
         } else {
+            // Content Rows
             table += `${row}  `;
             for (let column = 1; column < this.boardSize; column++) {
                 table+=`   |`;
@@ -40,35 +43,30 @@ Grid.prototype.showTable = function() {
 
 Grid.prototype.selectCell = function(row, column, player) {
 
-    console.log('here', row, column, player);
-
     if (row <= 0 || row > this.boardSize ) return ERROR_OUT_OF_BOUNDS_X;
 
     if (column <= 0 || column > this.boardSize) return  ERROR_OUT_OF_BOUNDS_Y;
 
     // find row in this.selectedCells
     const key = Object.keys(this.selectedCells).find((key) => {
-        return key === row;
+        return parseInt(key) === row;
     });
 
     // if row doesnt exist, add a new entry, with the value of an array with one element, the column number and mark the cell
     if (key === undefined) {
-        this.selectedCells.row = new Cell(row, column, player);
-        console.log('success', this.selectedCells);
+        this.selectedCells[row] = [new Cell(row, column, player)];
         return SUCCESS_MARKED_CELL;
     } else {
         // if the row exists, check if the array value has the column the user specified
 
-        const cellFound = this.selectedCells.row.find((cell) => {
+        const cellFound = this.selectedCells[row].find((cell) => {
             return cell.column === column
         });
 
         if (cellFound === undefined) {
-            this.selectedCells.row.push(new Cell(row, column, player));
-            console.log('success', this.selectedCells);
+            this.selectedCells[row].push(new Cell(row, column, player));
             return SUCCESS_MARKED_CELL;
         } else {
-            console.log('error already selected', this.selectedCells);
             return ERROR_ALREADY_SELECTED;
         }
     }

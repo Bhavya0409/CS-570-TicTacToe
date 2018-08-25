@@ -122,7 +122,7 @@ askTurnQuestionNew = (player, row) => {
                             result === ERROR_OUT_OF_BOUNDS_Y ? 'column was out of bounds' : 
                                 'row and column was already selected'
                     }`);
-                    askTurnQuestionNew();
+                    askTurnQuestionNew(player);
                 }
             }
         }
