@@ -1,0 +1,6 @@
+module.exports = {
+    ERROR_OUT_OF_BOUNDS_X: 0,
+    ERROR_ALREADY_SELECTED: 1,
+    SUCCESS_MARKED_CELL: 2,
+    ERROR_OUT_OF_BOUNDS_Y: 3
+};

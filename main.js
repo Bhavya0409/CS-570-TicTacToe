@@ -1,13 +1,16 @@
 const rl = require('readline');
 const Grid = require('./grid');
+const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED} = require('./constants');
 
 let i = rl.createInterface(process.stdin, process.stdout);
 
 let players = 2;
-let boardSize = 3;
+let boardSize = 4;
 let winSequence = 3;
 
-startGame = () => {
+let grid;
+
+setUpGame = () => {
     i.question('Would you like to resume a game? Y/N\n', answer => {
         if (answer === 'Y') {
             // TODO implement saved game resume
@@ -17,7 +20,7 @@ startGame = () => {
             askPlayers();
         } else {
             console.log('Please enter either \"Y\" or \"N\"');
-            startGame();
+            setUpGame();
         }
     });
 };
@@ -80,16 +83,70 @@ askWinSequence = () => {
     })
 };
 
-setUpGame = () => {
-    let grid = new Grid(boardSize);
+startGame = () => {
+    grid = new Grid(boardSize);
     grid.showTable();
-    end();
+    turnPrompt();
 };
 
+turnPrompt = () => {
+    let player = 'X';
+    console.log(`TURN: PLAYER ${player}`);
+    askTurnQuestionNew(player);
+
+};
+
+askTurnQuestionNew = (player, row) => {
+    // console.log('row', row)
+    i.question(`Which ${row === undefined ? 'row' : 'column'} would you like?`, (val) => {
+        if (Number.isNaN(val) || val.trim().length === 0) {
+            console.log('Please enter a valid number');
+            askTurnQuestionNew(player)
+        } else if (parseInt(val) > boardSize || parseInt(val) <= 0) {
+            console.log(`Sorry, the ${row === undefined ? 'row' : 'column'} was out of bounds`);
+            askTurnQuestionNew(player)
+        } else {
+            // console.log('here', typeof row, parseInt(row), boardSize, boardSize > parseInt(row));
+            if (row === undefined) {
+                askTurnQuestionNew(player, parseInt(val));
+            } else {
+                const result = grid.selectCell(row, parseInt(val), player);
+
+                if (result === SUCCESS_MARKED_CELL) {
+                    // TODO INCREMENT PLAYER COUNTER
+                    grid.showTable();
+                    turnPrompt();
+                } else {
+                    console.log(`Sorry, that ${
+                        result === ERROR_OUT_OF_BOUNDS_X ? 'row was out of bounds' : 
+                            result === ERROR_OUT_OF_BOUNDS_Y ? 'column was out of bounds' : 
+                                'row and column was already selected'
+                    }`);
+                    askTurnQuestionNew();
+                }
+            }
+        }
+    })
+};
+
+// askTurnQuestion = (rowOrColumn) => {
+//     i.question(`Which ${rowOrColumn === 0 ? 'row' : 'column'} would you like?`, (row) => {
+//         if (Number.isNaN(row)) {
+//             console.log('Please enter a valid number');
+//             askTurnQuestion(rowOrColumn)
+//         } else if (row > boardSize) {
+//             console.log(`Sorry, the ${rowOrColumn === 0 ? 'row' : 'column'} number cannot exceed the board size`);
+//             askTurnQuestion(rowOrColumn)
+//         } else {
+//             return parseInt(row);
+//         }
+//     })
+// };
+
 end = () => {
-    console.log('Have a nice day!');
+    console.log('exiting...');
     i.close();
     process.stdin.destroy();
 };
 
-setUpGame();
+startGame();
