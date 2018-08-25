@@ -22,9 +22,11 @@ Grid.prototype.showTable = function() {
             }
         } else {
             // Content Rows
+            //1     |   |
             table += `${row}  `;
             for (let column = 1; column < this.boardSize; column++) {
-                table+=`   |`;
+                const cell = this.findCell(row, column);
+                table+=` ${cell ? cell.player : ' '} |`;
             }
 
             if (row !== this.boardSize) {
@@ -39,6 +41,20 @@ Grid.prototype.showTable = function() {
     }
 
     console.log(table);
+};
+
+Grid.prototype.findCell = function(row, column) {
+    const result = Object.keys(this.selectedCells).find((rowAlreadySelected) => {
+        return parseInt(rowAlreadySelected) === row;
+    });
+
+    if (result === undefined) {
+        return
+    }
+
+   return this.selectedCells[row].find((cell) => {
+        return cell.column === column
+    });
 };
 
 Grid.prototype.selectCell = function(row, column, player) {
