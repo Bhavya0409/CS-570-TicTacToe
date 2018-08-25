@@ -1,6 +1,6 @@
 const rl = require('readline');
 const Grid = require('./grid');
-const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED} = require('./constants');
+const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, VICTORY} = require('./constants');
 
 let i = rl.createInterface(process.stdin, process.stdout);
 
@@ -90,7 +90,7 @@ askWinSequence = () => {
 };
 
 startGame = () => {
-    grid = new Grid(boardSize);
+    grid = new Grid(boardSize, winSequence);
     grid.showTable();
     turnPrompt();
 };
@@ -118,7 +118,11 @@ askTurnQuestionNew = (player, row) => {
             } else {
                 const result = grid.selectCell(row, parseInt(val), player);
 
-                if (result === SUCCESS_MARKED_CELL) {
+                if (result === VICTORY) {
+                    grid.showTable();
+                    console.log('Congratulations, you won!');
+                    end();
+                } else if (result === SUCCESS_MARKED_CELL) {
                     if (playerTurn === playerLetters.length - 1) {
                         playerTurn = 0;
                     } else {
@@ -128,10 +132,10 @@ askTurnQuestionNew = (player, row) => {
                     turnPrompt();
                 } else {
                     console.log(`Sorry, that ${
-                        result === ERROR_OUT_OF_BOUNDS_X ? 'row was out of bounds' : 
-                            result === ERROR_OUT_OF_BOUNDS_Y ? 'column was out of bounds' : 
+                        result === ERROR_OUT_OF_BOUNDS_X ? 'row was out of bounds' :
+                            result === ERROR_OUT_OF_BOUNDS_Y ? 'column was out of bounds' :
                                 'row and column was already selected'
-                    }`);
+                        }`);
                     askTurnQuestionNew(player);
                 }
             }

@@ -1,8 +1,11 @@
-const Cell = require('./cell');
-const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED, SUCCESS_MARKED_CELL} = require('./constants');
+const _ = require('lodash');
 
-function Grid(boardSize) {
+const Cell = require('./cell');
+const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED, SUCCESS_MARKED_CELL, VICTORY} = require('./constants');
+
+function Grid(boardSize, winSequence) {
     this.boardSize = boardSize;
+    this.winSequence = winSequence;
     /* structure:
     {
         row1: [Cell, Cell]
@@ -71,7 +74,11 @@ Grid.prototype.selectCell = function(row, column, player) {
     // if row doesnt exist, add a new entry, with the value of an array with one element, the column number and mark the cell
     if (key === undefined) {
         this.selectedCells[row] = [new Cell(row, column, player)];
-        return SUCCESS_MARKED_CELL;
+        if (this.isVictory(player)) {
+            return VICTORY;
+        } else {
+            return SUCCESS_MARKED_CELL;
+        }
     } else {
         // if the row exists, check if the array value has the column the user specified
 
@@ -81,11 +88,65 @@ Grid.prototype.selectCell = function(row, column, player) {
 
         if (cellFound === undefined) {
             this.selectedCells[row].push(new Cell(row, column, player));
-            return SUCCESS_MARKED_CELL;
+            if (this.isVictory(player)) {
+                return VICTORY;
+            } else {
+                return SUCCESS_MARKED_CELL;
+            }
         } else {
             return ERROR_ALREADY_SELECTED;
         }
     }
+};
+
+Grid.prototype.isVictory = function(player) {
+    const allCells = _.flattenDeep(Object.values(this.selectedCells)).filter((cell) => {
+        return cell.player === player;
+    });
+
+    console.log('all cells', allCells);
+
+    // check vertically
+
+    // Create a list of visited cells to improve performance
+    const verticalVisited = [];
+
+    // Loop through all cells that have not been visited
+    for (let outerIndex = 0; outerIndex < allCells.length; outerIndex++) {
+        const outerCell = allCells[outerIndex];
+        if (!verticalVisited.includes(outerCell)) {
+            // This cell has not been visited so create a new set of possible outcomes
+            verticalVisited.push(outerCell);
+            let count = 1;
+
+            // Loop through rest of cells that also have not been visited
+            for (let innerIndex = outerIndex+1; innerIndex < allCells.length; innerIndex++) {
+                const innerCell = allCells[innerIndex];
+                if (!verticalVisited.includes(innerCell)) {
+                    // If the inner cell has also not been visited, time to compare
+                    if (outerCell.column === innerCell.column && Math.abs(outerCell.row - innerCell.row) <= count) {
+                        // If both cells are part of the same column and the difference in the rows is less than or equal to the count,
+                        // then it is part of the same set and should be counted
+
+                        // Increase count and check if this is a victory move.
+                        // If not, add the cell to visited and continue looping through inner cells
+                        count++;
+                        if (count === this.winSequence) {
+                            return VICTORY;
+                        } else {
+                            verticalVisited.push(innerCell);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // check horizontally
+
+    // check diagonally
+
+    return false;
 };
 
 module.exports = Grid;
