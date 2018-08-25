@@ -101,10 +101,10 @@ askTurnQuestionNew = (player, row) => {
     i.question(`Which ${row === undefined ? 'row' : 'column'} would you like?`, (val) => {
         if (Number.isNaN(val) || val.trim().length === 0) {
             console.log('Please enter a valid number');
-            askTurnQuestionNew(player)
+            askTurnQuestionNew(player, row)
         } else if (parseInt(val) > boardSize || parseInt(val) <= 0) {
             console.log(`Sorry, the ${row === undefined ? 'row' : 'column'} was out of bounds`);
-            askTurnQuestionNew(player)
+            askTurnQuestionNew(player, row)
         } else {
             // console.log('here', typeof row, parseInt(row), boardSize, boardSize > parseInt(row));
             if (row === undefined) {
@@ -128,20 +128,6 @@ askTurnQuestionNew = (player, row) => {
         }
     })
 };
-
-// askTurnQuestion = (rowOrColumn) => {
-//     i.question(`Which ${rowOrColumn === 0 ? 'row' : 'column'} would you like?`, (row) => {
-//         if (Number.isNaN(row)) {
-//             console.log('Please enter a valid number');
-//             askTurnQuestion(rowOrColumn)
-//         } else if (row > boardSize) {
-//             console.log(`Sorry, the ${rowOrColumn === 0 ? 'row' : 'column'} number cannot exceed the board size`);
-//             askTurnQuestion(rowOrColumn)
-//         } else {
-//             return parseInt(row);
-//         }
-//     })
-// };
 
 end = () => {
     console.log('exiting...');
