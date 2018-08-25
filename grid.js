@@ -24,9 +24,9 @@ Grid.prototype.showTable = function() {
             // Content Rows
             //1     |   |
             table += `${row}  `;
-            for (let column = 1; column < this.boardSize; column++) {
+            for (let column = 1; column <= this.boardSize; column++) {
                 const cell = this.findCell(row, column);
-                table+=` ${cell ? cell.player : ' '} |`;
+                table+=` ${cell ? cell.player : ' '} ${column === this.boardSize ? '' : '|'}`;
             }
 
             if (row !== this.boardSize) {

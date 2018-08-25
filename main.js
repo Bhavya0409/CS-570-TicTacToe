@@ -5,8 +5,11 @@ const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_
 let i = rl.createInterface(process.stdin, process.stdout);
 
 let players = 2;
-let boardSize = 4;
+let boardSize = 3;
 let winSequence = 3;
+
+const playerLetters = [];
+let playerTurn = 0;
 
 let grid;
 
@@ -28,11 +31,12 @@ setUpGame = () => {
 askPlayers = () => {
     i.question("How many players are playing? Press enter for default of 2\n", (num) => {
         if (num.trim().length === 0) {
-            // nothing entered, so use default of 2
-            players = 2;
             askBoardSize();
         } else if (num > 26) {
             console.log('Sorry, the maximum number of players is 26');
+            askPlayers()
+        } else if (num < 2) {
+            console.log('Sorry, the minimum number of players is 2');
             askPlayers()
         } else if (Number.isNaN(num)) {
             console.log('Please enter a valid number');
@@ -46,10 +50,13 @@ askPlayers = () => {
 };
 
 askBoardSize = () => {
+    const letters = 'XOABCDEFGHIJKLMNPQRSTUVWYZ';
+    for (let i = 0; i < players; i++) {
+        playerLetters.push(letters.charAt(i));
+    }
     i.question("How big do you want the board to be? Press enter for default of 3\n", (num) => {
         if (num.trim().length === 0) {
             // nothing entered, so use default of 3
-            boardSize = 3;
             askWinSequence();
         } else if (Number.isNaN(num)) {
             console.log('Please enter a valid number');
@@ -68,8 +75,7 @@ askWinSequence = () => {
     i.question("What should the win sequence count be? Press enter for default of 3\n", (num) => {
         if (num.trim().length === 0) {
             // nothing entered, so use default of 3
-            winSequence = 3;
-            setUpGame();
+            startGame();
         } else if (Number.isNaN(num)) {
             console.log('Please enter a valid number');
             askWinSequence()
@@ -78,7 +84,7 @@ askWinSequence = () => {
             askWinSequence()
         } else {
             winSequence = parseInt(num);
-            setUpGame();
+            startGame();
         }
     })
 };
@@ -90,7 +96,7 @@ startGame = () => {
 };
 
 turnPrompt = () => {
-    let player = 'X';
+    let player = playerLetters[playerTurn];
     console.log(`TURN: PLAYER ${player}`);
     askTurnQuestionNew(player);
 
@@ -113,7 +119,11 @@ askTurnQuestionNew = (player, row) => {
                 const result = grid.selectCell(row, parseInt(val), player);
 
                 if (result === SUCCESS_MARKED_CELL) {
-                    // TODO INCREMENT PLAYER COUNTER
+                    if (playerTurn === playerLetters.length - 1) {
+                        playerTurn = 0;
+                    } else {
+                        playerTurn++;
+                    }
                     grid.showTable();
                     turnPrompt();
                 } else {
@@ -135,4 +145,4 @@ end = () => {
     process.stdin.destroy();
 };
 
-startGame();
+setUpGame();
