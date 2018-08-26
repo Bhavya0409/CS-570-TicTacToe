@@ -104,7 +104,7 @@ Grid.prototype.isVictory = function(player) {
         return cell.player === player;
     });
 
-    console.log('all cells', allCells);
+    // console.log('all cells', allCells);
 
     // check vertically
 
@@ -143,6 +143,39 @@ Grid.prototype.isVictory = function(player) {
     }
 
     // check horizontally
+    // Create a list of visited cells to improve performance
+    const horizontalVisited = [];
+
+    // Loop through all cells that have not been visited
+    for (let outerIndex = 0; outerIndex < allCells.length; outerIndex++) {
+        const outerCell = allCells[outerIndex];
+        if (!horizontalVisited.includes(outerCell)) {
+            // This cell has not been visited so create a new set of possible outcomes
+            horizontalVisited.push(outerCell);
+            let count = 1;
+
+            // Loop through rest of cells that also have not been visited
+            for (let innerIndex = outerIndex+1; innerIndex < allCells.length; innerIndex++) {
+                const innerCell = allCells[innerIndex];
+                if (!horizontalVisited.includes(innerCell)) {
+                    // If the inner cell has also not been visited, time to compare
+                    if (outerCell.row === innerCell.row && Math.abs(outerCell.column - innerCell.column) <= count) {
+                        // If both cells are part of the same row and the difference in the columns is less than or equal to the count,
+                        // then it is part of the same set and should be counted
+
+                        // Increase count and check if this is a victory move.
+                        // If not, add the cell to visited and continue looping through inner cells
+                        count++;
+                        if (count === this.winSequence) {
+                            return VICTORY;
+                        } else {
+                            horizontalVisited.push(innerCell);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // check diagonally
 
