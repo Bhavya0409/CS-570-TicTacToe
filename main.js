@@ -1,6 +1,6 @@
 const rl = require('readline');
 const Grid = require('./grid');
-const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, VICTORY} = require('./constants');
+const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, VICTORY, TIE} = require('./constants');
 
 let i = rl.createInterface(process.stdin, process.stdout);
 
@@ -120,6 +120,9 @@ askTurnQuestionNew = (player, row) => {
                 if (result === VICTORY) {
                     grid.showTable();
                     console.log('Congratulations, you won!');
+                    end();
+                } else if (result === TIE) {
+                    console.log('Tie Game');
                     end();
                 } else if (result === SUCCESS_MARKED_CELL) {
                     if (playerTurn === playerLetters.length - 1) {

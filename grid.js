@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const Cell = require('./cell');
-const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED, SUCCESS_MARKED_CELL, VICTORY} = require('./constants');
+const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED, SUCCESS_MARKED_CELL, VICTORY, TIE} = require('./constants');
 
 function Grid(boardSize, winSequence) {
     this.boardSize = boardSize;
@@ -12,6 +12,7 @@ function Grid(boardSize, winSequence) {
     }
      */
     this.selectedCells = {};
+    this.cellCount = 0;
 }
 
 Grid.prototype.showTable = function() {
@@ -74,6 +75,7 @@ Grid.prototype.selectCell = function(row, column, player) {
     // if row doesnt exist, add a new entry, with the value of an array with one element, the column number and mark the cell
     if (key === undefined) {
         this.selectedCells[row] = [new Cell(row, column, player)];
+        this.cellCount++;
         if (this.isVictory(player)) {
             return VICTORY;
         } else {
@@ -88,8 +90,11 @@ Grid.prototype.selectCell = function(row, column, player) {
 
         if (cellFound === undefined) {
             this.selectedCells[row].push(new Cell(row, column, player));
+            this.cellCount++;
             if (this.isVictory(player)) {
                 return VICTORY;
+            } else if (this.cellCount === this.boardSize * this.boardSize) {
+                return TIE;
             } else {
                 return SUCCESS_MARKED_CELL;
             }
@@ -132,7 +137,7 @@ Grid.prototype.isVictory = function(player) {
                         // If not, add the cell to visited and continue looping through inner cells
                         count++;
                         if (count === this.winSequence) {
-                            return VICTORY;
+                            return true;
                         } else {
                             verticalVisited.push(innerCell);
                         }
@@ -167,7 +172,7 @@ Grid.prototype.isVictory = function(player) {
                         // If not, add the cell to visited and continue looping through inner cells
                         count++;
                         if (count === this.winSequence) {
-                            return VICTORY;
+                            return true;
                         } else {
                             horizontalVisited.push(innerCell);
                         }
@@ -202,7 +207,7 @@ Grid.prototype.isVictory = function(player) {
                         // If not, add the cell to visited and continue looping through inner cells
                         count++;
                         if (count === this.winSequence) {
-                            return VICTORY;
+                            return true;
                         } else {
                             horizontalVisited.push(innerCell);
                         }
@@ -214,6 +219,10 @@ Grid.prototype.isVictory = function(player) {
     }
 
     return false;
+};
+
+Grid.prototype.isTie = function() {
+
 };
 
 module.exports = Grid;
