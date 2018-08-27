@@ -162,10 +162,24 @@ askTurnQuestionNew = (player, row) => {
                 if (result === VICTORY) {
                     grid.showTable();
                     console.log('Congratulations, you won!');
-                    end();
+                    if (fs.existsSync("pausedGame.txt")) {
+                        // If the user wants to start a new game, remove any old game
+                        deleteSavedGame().then(() => {
+                            end();
+                        })
+                    } else {
+                        end();
+                    }
                 } else if (result === TIE) {
                     console.log('Tie Game');
-                    end();
+                    if (fs.existsSync("pausedGame.txt")) {
+                        // If the user wants to start a new game, remove any old game
+                        deleteSavedGame().then(() => {
+                            end();
+                        })
+                    } else {
+                        end();
+                    }
                 } else if (result === SUCCESS_MARKED_CELL) {
                     if (playerTurn === playerLetters.length - 1) {
                         playerTurn = 0;
@@ -190,16 +204,27 @@ askTurnQuestionNew = (player, row) => {
 savePrompt = () => {
     i.question("Would you like to save? Y/N", val => {
         if (val.trim() === 'Y' || val.trim() === 'y') {
-            console.log('Saving Game');
-            //TODO save game
-            saveGame().then((message) => {
-                console.log(message);
-                end();
-            }, (error) => {
-                console.log(error);
-                end();
-            });
-            end();
+            console.log('Saving Game...');
+            if (fs.existsSync("pausedGame.txt")) {
+                // If the user wants to start a new game, remove any old game
+                deleteSavedGame().then(() => {
+                    saveGame().then((message) => {
+                        console.log(message);
+                        end();
+                    }, (error) => {
+                        console.log(error);
+                        end();
+                    });
+                })
+            } else {
+                saveGame().then((message) => {
+                    console.log(message);
+                    end();
+                }, (error) => {
+                    console.log(error);
+                    end();
+                });
+            }
         } else if (val.trim() === 'N' || val.trim() === 'n') {
             console.log('Thank you for playing!');
             end();
@@ -228,7 +253,7 @@ saveGame = () => {
 };
 
 deleteSavedGame = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         fs.unlink('pausedGame.txt', () => {
             resolve()
         })
