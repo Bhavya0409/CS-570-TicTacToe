@@ -4,5 +4,7 @@ module.exports = {
     ERROR_ALREADY_SELECTED: 2,
     SUCCESS_MARKED_CELL: 3,
     VICTORY: 4,
-    TIE: 5
+    TIE: 5,
+    INCREASING: 6,
+    DECREASING: 7
 };

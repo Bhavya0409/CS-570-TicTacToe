@@ -1,7 +1,8 @@
 const _ = require('lodash');
 
 const Cell = require('./cell');
-const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED, SUCCESS_MARKED_CELL, VICTORY, TIE} = require('./constants');
+const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED,
+    SUCCESS_MARKED_CELL, VICTORY, TIE, INCREASING, DECREASING} = require('./constants');
 
 function Grid(boardSize, winSequence) {
     this.boardSize = boardSize;
@@ -182,7 +183,10 @@ Grid.prototype.isVictory = function(player) {
         }
     }
 
-    // ====== CHECK DIAGONALLY ======
+    return this.isDiagonalWin(allCells, INCREASING) || this.isDiagonalWin(allCells, DECREASING);
+};
+
+Grid.prototype.isDiagonalWin = function(allCells, direction) {
     // Create a list of visited cells to improve performance
     const diagonallyVisited = [];
 
@@ -198,9 +202,10 @@ Grid.prototype.isVictory = function(player) {
                 const innerCell = allCells[innerIndex];
                 // If the inner cell has also not been visited, time to compare
                 if (!diagonallyVisited.includes(innerCell)) {
-                    // If the difference in rows equals the difference in columns, that means the inner and outer cells are diagonally related.
+                    // If direction === INCREASING, then we check if the difference in the rows + difference in columns = 0
+                    // If direction === DECREASING, then we check if the difference in the rows - difference in columns = 0
                     // Also, if the distance between them is less than the count, then add it to the set
-                    if (Math.abs(outerCell.row - innerCell.row) === Math.abs(outerCell.column - innerCell.column)
+                    if ((outerCell.row - innerCell.row) + (direction === INCREASING ? 1 : -1) * (outerCell.column - innerCell.column) === 0
                         && Math.abs(outerCell.row - innerCell.row) <= count) {
 
                         // Increase count and check if this is a victory move.
@@ -209,7 +214,7 @@ Grid.prototype.isVictory = function(player) {
                         if (count === this.winSequence) {
                             return true;
                         } else {
-                            horizontalVisited.push(innerCell);
+                            diagonallyVisited.push(innerCell);
                         }
                     }
                 }
@@ -219,10 +224,6 @@ Grid.prototype.isVictory = function(player) {
     }
 
     return false;
-};
-
-Grid.prototype.isTie = function() {
-
 };
 
 module.exports = Grid;
