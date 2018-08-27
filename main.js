@@ -15,11 +15,11 @@ let grid;
 
 setUpGame = () => {
     i.question('Would you like to resume a game? Y/N\n', answer => {
-        if (answer === 'Y') {
+        if (answer.trim() === 'Y' || answer.trim() === 'y') {
             // TODO implement saved game resume
             console.log('to implement...');
             end();
-        } else if (answer === 'N') {
+        } else if (answer.trim() === 'N' || answer.trim() === 'n') {
             askPlayers();
         } else {
             console.log('Please enter either \"Y\" or \"N\"');
@@ -103,7 +103,16 @@ turnPrompt = () => {
 
 askTurnQuestionNew = (player, row) => {
     // console.log('row', row)
-    i.question(`Which ${row === undefined ? 'row' : 'column'} would you like?`, (val) => {
+    i.question(`Which ${row === undefined ? 'row' : 'column'} would you like? Press q to quit.`, val => {
+        if (val.trim() === 'q') {
+            i.question("Are you sure? Press q again to confirm, or anything else to resume.", val => {
+                if (val.trim() === 'q') {
+                    savePrompt();
+                } else {
+                    askTurnQuestionNew(player, row);
+                }
+            })
+        }
         if (Number.isNaN(val) || val.trim().length === 0) {
             console.log('Please enter a valid number');
             askTurnQuestionNew(player, row)
@@ -143,6 +152,22 @@ askTurnQuestionNew = (player, row) => {
             }
         }
     })
+};
+
+savePrompt = () => {
+    i.question("Would you like to save? Y/N", val => {
+        if (val.trim() === 'Y' || val.trim() === 'y') {
+            console.log('Saving Game');
+            //TODO save game
+            end();
+        } else if (val.trim() === 'N' || val.trim() === 'n') {
+            console.log('Thank you for playing!');
+            end();
+        } else {
+            console.log('Please enter either \"Y\" or \"N\"');
+            savePrompt();
+        }
+    });
 };
 
 end = () => {
