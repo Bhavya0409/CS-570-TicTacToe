@@ -1,4 +1,6 @@
 const rl = require('readline');
+const fs = require('fs');
+
 const Grid = require('./grid');
 const {SUCCESS_MARKED_CELL, ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, VICTORY, TIE} = require('./constants');
 
@@ -16,11 +18,42 @@ let grid;
 setUpGame = () => {
     i.question('Would you like to resume a game? Y/N\n', answer => {
         if (answer.trim() === 'Y' || answer.trim() === 'y') {
-            // TODO implement saved game resume
-            console.log('to implement...');
-            end();
+            if (fs.existsSync("pausedGame.txt")) {
+                getSavedGame().then((data) => {
+                    const parseData = JSON.parse(data);
+                    players = parseData.players;
+                    boardSize = parseData.boardSize;
+                    winSequence = parseData.winSequence;
+                    playerTurn = parseData.playerTurn;
+                    const letters = 'XOABCDEFGHIJKLMNPQRSTUVWYZ';
+                    for (let i = 0; i < players; i++) {
+                        playerLetters.push(letters.charAt(i));
+                    }
+
+                    let cellCount = 0;
+                    Object.keys(parseData.cells).forEach((key) => {
+                        cellCount += parseData.cells[key].length
+                    });
+                    grid = new Grid(boardSize, winSequence, parseData.cells, cellCount);
+                    grid.showTable();
+                    turnPrompt();
+                }, (error) => {
+                    console.log(error);
+                    askPlayers();
+                })
+            } else {
+                console.log('No saved game. Starting new game...');
+                askPlayers();
+            }
         } else if (answer.trim() === 'N' || answer.trim() === 'n') {
-            askPlayers();
+            if (fs.existsSync("pausedGame.txt")) {
+                // If the user wants to start a new game, remove any old game
+                deleteSavedGame().then(() => {
+                    askPlayers();
+                })
+            } else {
+                askPlayers();
+            }
         } else {
             console.log('Please enter either \"Y\" or \"N\"');
             setUpGame();
@@ -159,6 +192,13 @@ savePrompt = () => {
         if (val.trim() === 'Y' || val.trim() === 'y') {
             console.log('Saving Game');
             //TODO save game
+            saveGame().then((message) => {
+                console.log(message);
+                end();
+            }, (error) => {
+                console.log(error);
+                end();
+            });
             end();
         } else if (val.trim() === 'N' || val.trim() === 'n') {
             console.log('Thank you for playing!');
@@ -168,6 +208,40 @@ savePrompt = () => {
             savePrompt();
         }
     });
+};
+
+saveGame = () => {
+    const data = {
+        players: players,
+        boardSize: boardSize,
+        winSequence: winSequence,
+        playerTurn: playerTurn,
+        cells: grid.selectedCells
+    };
+
+    return new Promise((resolve, reject) => {
+        fs.writeFile("pausedGame.txt", JSON.stringify(data), 'utf-8', (err) => {
+            if (err) reject('Failed to save game.');
+            else resolve('Successfully saved game!');
+        })
+    });
+};
+
+deleteSavedGame = () => {
+    return new Promise((resolve, reject) => {
+        fs.unlink('pausedGame.txt', () => {
+            resolve()
+        })
+    })
+};
+
+getSavedGame = () => {
+    return new Promise((resolve, reject) => {
+        fs.readFile("pausedGame.txt", "utf-8", (err, data) => {
+            if (err) reject('Error getting saved game. Starting new one...');
+            else resolve(data);
+        })
+    })
 };
 
 end = () => {

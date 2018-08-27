@@ -4,7 +4,7 @@ const Cell = require('./cell');
 const {ERROR_OUT_OF_BOUNDS_X, ERROR_OUT_OF_BOUNDS_Y, ERROR_ALREADY_SELECTED,
     SUCCESS_MARKED_CELL, VICTORY, TIE, INCREASING, DECREASING} = require('./constants');
 
-function Grid(boardSize, winSequence) {
+function Grid(boardSize, winSequence, selectedCells = {}, cellCount = 0) {
     this.boardSize = boardSize;
     this.winSequence = winSequence;
     /* structure:
@@ -12,9 +12,13 @@ function Grid(boardSize, winSequence) {
         row1: [Cell, Cell]
     }
      */
-    this.selectedCells = {};
-    this.cellCount = 0;
+    this.selectedCells = selectedCells;
+    this.cellCount = cellCount;
 }
+
+Grid.prototype.getAllCells = function() {
+    const data = {}
+};
 
 Grid.prototype.showTable = function() {
     let table = ' ';
