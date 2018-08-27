@@ -106,7 +106,7 @@ Grid.prototype.isVictory = function(player) {
 
     // console.log('all cells', allCells);
 
-    // check vertically
+    // ====== CHECK VERTICALLY ======
 
     // Create a list of visited cells to improve performance
     const verticalVisited = [];
@@ -142,7 +142,7 @@ Grid.prototype.isVictory = function(player) {
         }
     }
 
-    // check horizontally
+    // ====== CHECK HORIZONTALLY ======
     // Create a list of visited cells to improve performance
     const horizontalVisited = [];
 
@@ -177,7 +177,42 @@ Grid.prototype.isVictory = function(player) {
         }
     }
 
-    // check diagonally
+    // ====== CHECK DIAGONALLY ======
+    // Create a list of visited cells to improve performance
+    const diagonallyVisited = [];
+
+    for (let outerIndex = 0; outerIndex < allCells.length; outerIndex++) {
+        const outerCell = allCells[outerIndex];
+        if (!diagonallyVisited.includes(outerCell)) {
+            // This cell has not been visited so create a new set of possible outcomes
+            diagonallyVisited.push(outerCell);
+            let count = 1;
+
+            // Loop through rest of cells that also have not been visited
+            for (let innerIndex = outerIndex+1; innerIndex < allCells.length; innerIndex++) {
+                const innerCell = allCells[innerIndex];
+                // If the inner cell has also not been visited, time to compare
+                if (!diagonallyVisited.includes(innerCell)) {
+                    // If the difference in rows equals the difference in columns, that means the inner and outer cells are diagonally related.
+                    // Also, if the distance between them is less than the count, then add it to the set
+                    // TODO bug here: (2, 2) (3, 3) and (0, 0) will pass
+                    if ((outerCell.row - innerCell.row) === (outerCell.column - innerCell.column)
+                        && (outerCell.row - innerCell.row) <= count) {
+
+                        // Increase count and check if this is a victory move.
+                        // If not, add the cell to visited and continue looping through inner cells
+                        count++;
+                        if (count === this.winSequence) {
+                            return VICTORY;
+                        } else {
+                            horizontalVisited.push(innerCell);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 
     return false;
 };
