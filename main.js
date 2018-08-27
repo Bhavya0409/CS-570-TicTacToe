@@ -44,7 +44,6 @@ askPlayers = () => {
         } else {
             players = parseInt(num);
             askBoardSize();
-            end();
         }
     })
 };

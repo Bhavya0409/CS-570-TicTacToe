@@ -195,9 +195,8 @@ Grid.prototype.isVictory = function(player) {
                 if (!diagonallyVisited.includes(innerCell)) {
                     // If the difference in rows equals the difference in columns, that means the inner and outer cells are diagonally related.
                     // Also, if the distance between them is less than the count, then add it to the set
-                    // TODO bug here: (2, 2) (3, 3) and (0, 0) will pass
-                    if ((outerCell.row - innerCell.row) === (outerCell.column - innerCell.column)
-                        && (outerCell.row - innerCell.row) <= count) {
+                    if (Math.abs(outerCell.row - innerCell.row) === Math.abs(outerCell.column - innerCell.column)
+                        && Math.abs(outerCell.row - innerCell.row) <= count) {
 
                         // Increase count and check if this is a victory move.
                         // If not, add the cell to visited and continue looping through inner cells
