@@ -16,10 +16,6 @@ function Grid(boardSize, winSequence, selectedCells = {}, cellCount = 0) {
     this.cellCount = cellCount;
 }
 
-Grid.prototype.getAllCells = function() {
-    const data = {}
-};
-
 Grid.prototype.showTable = function() {
     let table = ' ';
     // console.log('selected', this.selectedCells);
@@ -27,7 +23,11 @@ Grid.prototype.showTable = function() {
         if (row === 0) {
             // Header Row
             for (let column = 1; column <= this.boardSize; column++) {
-                table+=`   ${column}`;
+                if (column >= 100) {
+                    table += `  ${column}`;
+                } else {
+                    table+=`   ${column}`;
+                }
             }
         } else {
             // Content Rows
@@ -113,8 +113,6 @@ Grid.prototype.isVictory = function(player) {
     const allCells = _.flattenDeep(Object.values(this.selectedCells)).filter((cell) => {
         return cell.player === player;
     });
-
-    // console.log('all cells', allCells);
 
     // ====== CHECK VERTICALLY ======
 
