@@ -144,62 +144,60 @@ turnPrompt = () => {
 
 };
 
-askTurnQuestionNew = (player, row) => {
-    // console.log('row', row)
-    i.question(`Which ${row === undefined ? 'row' : 'column'} would you like? Press q to quit.`, val => {
+askTurnQuestionNew = (player) => {
+    i.question('Please enter the row and column you would like to select, separated by spaces. Press q to quit.\n', val => {
         if (val.trim() === 'q') {
-            i.question("Are you sure? Press q again to confirm, or anything else to resume.", val => {
+            i.question("Are you sure? Press q again to confirm, or anything else to resume.\n", val => {
                 if (val.trim() === 'q') {
                     savePrompt();
                 } else {
-                    askTurnQuestionNew(player, row);
+                    askTurnQuestionNew(player);
                 }
             })
-        }
-        if (Number.isNaN(val) || val.trim().length === 0) {
-            console.log('Please enter a valid number');
-            askTurnQuestionNew(player, row)
-        } else if (parseInt(val) > boardSize || parseInt(val) <= 0) {
-            console.log(`Sorry, the ${row === undefined ? 'row' : 'column'} was out of bounds`);
-            askTurnQuestionNew(player, row)
         } else {
-            // console.log('here', typeof row, parseInt(row), boardSize, boardSize > parseInt(row));
-            if (row === undefined) {
-                askTurnQuestionNew(player, parseInt(val));
+            const values = val.split(' ');
+            if (values.length !== 2) {
+                console.log('Please enter 2 values.');
+                askTurnQuestionNew(player);
             } else {
-                const result = grid.selectCell(row, parseInt(val), player);
-
-                if (result === VICTORY) {
-                    grid.showTable();
-                    console.log('Congratulations, you won!');
-                    deleteSavedGame().then(() => {
-                        end();
-                    })
-                } else if (result === TIE) {
-                    grid.showTable();
-                    console.log('Tie Game');
-                    deleteSavedGame().then(() => {
-                        end();
-                    })
-                } else if (result === SUCCESS_MARKED_CELL) {
-                    if (playerTurn === playerLetters.length - 1) {
-                        playerTurn = 0;
-                    } else {
-                        playerTurn++;
-                    }
-                    grid.showTable();
-                    turnPrompt();
+                if (Number.isNaN(values[0]) || Number.isNaN(values[1])) {
+                    console.log('One or more values specified were not numbers.');
+                    askTurnQuestionNew(player)
                 } else {
-                    console.log(`Sorry, that ${
-                        result === ERROR_OUT_OF_BOUNDS_X ? 'row was out of bounds' :
-                            result === ERROR_OUT_OF_BOUNDS_Y ? 'column was out of bounds' :
-                                'row and column was already selected'
-                        }`);
-                    askTurnQuestionNew(player);
+                    const result = grid.selectCell(parseInt(values[0]), parseInt(values[1]), player);
+
+                    if (result === VICTORY) {
+                        grid.showTable();
+                        console.log('Congratulations, you won!');
+                        deleteSavedGame().then(() => {
+                            end();
+                        })
+                    } else if (result === TIE) {
+                        grid.showTable();
+                        console.log('Tie Game');
+                        deleteSavedGame().then(() => {
+                            end();
+                        })
+                    } else if (result === SUCCESS_MARKED_CELL) {
+                        if (playerTurn === playerLetters.length - 1) {
+                            playerTurn = 0;
+                        } else {
+                            playerTurn++;
+                        }
+                        grid.showTable();
+                        turnPrompt();
+                    } else {
+                        console.log(`Sorry, that ${
+                            result === ERROR_OUT_OF_BOUNDS_X ? 'row was out of bounds' :
+                                result === ERROR_OUT_OF_BOUNDS_Y ? 'column was out of bounds' :
+                                    'row and column was already selected'
+                            }`);
+                        askTurnQuestionNew(player);
+                    }
                 }
             }
         }
-    })
+    });
 };
 
 savePrompt = () => {
