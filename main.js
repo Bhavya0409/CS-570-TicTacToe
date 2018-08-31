@@ -15,6 +15,11 @@ let playerTurn = 0;
 
 let grid;
 
+/**
+ * TODO:
+ * 1. Change Offset width of 2 and 3 digit numbers
+ */
+
 setUpGame = () => {
     i.question('Would you like to resume a game? Y/N\n', answer => {
         if (answer.trim() === 'Y' || answer.trim() === 'y') {
@@ -58,7 +63,7 @@ setUpGame = () => {
 };
 
 askPlayers = () => {
-    i.question("How many players are playing? Press enter for default of 2\n", (num) => {
+    i.question("How many players are playing? Maximum of 26. Press enter for default of 2\n", (num) => {
         if (num.trim().length === 0) {
             askBoardSize();
         } else if (num > 26) {
@@ -103,7 +108,7 @@ askWinSequence = () => {
     i.question("What should the win sequence count be? Press enter for default of 3\n", (num) => {
         if (num.trim().length === 0) {
             // nothing entered, so use default of 3
-            startGame();
+            checkWinCondition();
         } else if (Number.isNaN(num)) {
             console.log('Please enter a valid number');
             askWinSequence()
@@ -112,9 +117,18 @@ askWinSequence = () => {
             askWinSequence()
         } else {
             winSequence = parseInt(num);
-            startGame();
+            checkWinCondition();
         }
     })
+};
+
+checkWinCondition = () => {
+    if (Math.ceil(Math.pow(boardSize, 2) / players) < winSequence) {
+        console.log('Winning is not possible with this combination of players, board size, and win sequence');
+        askPlayers();
+    } else {
+        startGame();
+    }
 };
 
 startGame = () => {
@@ -189,7 +203,7 @@ askTurnQuestionNew = (player, row) => {
 };
 
 savePrompt = () => {
-    i.question("Would you like to save? Y/N", val => {
+    i.question("Would you like to save? Y/N\n", val => {
         if (val.trim() === 'Y' || val.trim() === 'y') {
             console.log('Saving Game...');
             // If the user wants to start a new game, remove any old game
